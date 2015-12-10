@@ -13,7 +13,7 @@ $fec_producto 		= '';
 $compra_producto 	= '';
 $venta_producto 	= '';
 $utilidad_producto 	= '';
-
+$tag_item 			= '';
 
 
 $nombre_producto 	= $_POST["irProd"];
@@ -27,6 +27,7 @@ $compra_producto 	= $_POST["irVenta"];
 $venta_producto 	= $_POST["irVenta"];
 $utilidad_producto 	= 0;
 $tabActive 			= 2;
+$tag_item 			= $_POST["irtag"];
 
 #Un nuevo producto
 $error = array();
@@ -134,7 +135,12 @@ $OBJ->insert_Precio_Producto();
 #Actualizo el precio del productos en las promociones.
 $response['promo'] = $OBJc->update_precio_promo_prod( $id_producto );
 
-/*
+
+
+
+
+
+
 
 
 #ENCABEZADO PARTE DE ENTRADA
@@ -177,11 +183,52 @@ $OBJ->set_Dato( '' , 'var_Laboratorio' );
 # Actualizar, Insertar
 $response['id'] = $OBJ->insert_detalle_pe();
 
+/*
+
+#Ahora lo agrego al detalle de la venta y envio la data.
+#INSERTAR PRODUCTO EN LA BOLETA
+
+$OBJ->set_Dato( $id_producto , 'int_IdProducto' );
+$OBJ->set_Dato( 1 , 'int_IdUnidadMedida' );
+$OBJ->set_Dato( $cant_producto , 'int_Cantidad' );
+$OBJ->set_Dato( $venta_producto , 'flt_Precio' );
+$OBJ->set_Dato( $idLote , 'int_IdLote' );
+#Total se calcula
+$OBJ->set_Dato( $tag , 'txt_Tag' );
+$OBJ->set_Dato( $idUsuario , 'int_IdUsuario' );
+
+#Busco si el producto esta dentro de una promoción.
+$newPrecio = 0;
+$arPromo = array();
+$response['promo'] = $arPromo = $OBJ->prod_in_promo( $idp );
+if(is_array($arPromo)){
+	foreach ($arPromo as $key => $rsp) {
+		$OBJ->set_Dato( $rsp->int_IdPromo , 'int_IdPromo' );
+		$OBJ->set_Dato( $rsp->var_Promo , 'var_Promo' );
+		$OBJ->set_Dato( $rsp->flt_Promo , 'flt_Promo' );
+		$newPrecio = $rsp->flt_Promo;
+	}
+	$ntotal = $cant * $newPrecio;
+
+	$OBJ->set_Dato( $ntotal , 'flt_Total' );
+	unset($rsp);
+}else{
+	$OBJ->set_Dato( $total , 'flt_Total' );
+}
+
+# Actualizar, Insertar
+if( $idItem > 0 ){
+	$OBJ->set_UnionQ( $idItem , 'int_IdDetalleVenta' );
+	$response['id'] = $OBJ->update_detalle_venta();
+
+}else{
+	$response['id'] = $OBJ->insert_detalle_venta();
+}
 
 /**/
 
 
-#Ahora lo agrego al detalle de la venta y envio la data.
+
 
 echo json_encode($response);
 

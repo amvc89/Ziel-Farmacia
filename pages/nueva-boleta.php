@@ -613,6 +613,7 @@ $data_prods = $OBJ->get_all_productos_simlex_ventas();
                 <div class="col-lg-12">
                     <div class="collapse" id="collapseExample" >
                         <form id="irFormulario" class="">
+                            <input type="hidden" name="irtag" id="irtag" value="<?php echo $tag ?>" />
                             <div class="row">
                                 <div class="form-group col-lg-6 col-md-6 col-sm-6 col-xs-12 ">
                                     <label for="irProd">Producto</label>
